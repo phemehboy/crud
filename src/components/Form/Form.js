@@ -3,11 +3,11 @@ import { Paper, TextField, Typography, Button } from "@material-ui/core";
 import FileBase from "react-file-base64";
 import { useDispatch, useSelector } from "react-redux";
 import { createPost, updatePost } from "../../actions";
+import { useLocation } from "react-router-dom";
 
 import useStyles from "./styles";
 
 const initialValues = {
-  creator: "",
   title: "",
   message: "",
   tags: "",
@@ -15,9 +15,11 @@ const initialValues = {
 };
 
 const Form = ({ currentId, setCurrentId }) => {
+  const location = useLocation();
   const [postData, setPostData] = useState(initialValues);
   const classes = useStyles();
   const dispatch = useDispatch();
+  const user = JSON.parse(localStorage.getItem("profile"));
   const post = useSelector((state) =>
     currentId ? state.posts.find((p) => p._id === currentId) : null
   );
@@ -26,9 +28,11 @@ const Form = ({ currentId, setCurrentId }) => {
     e.preventDefault();
 
     if (currentId) {
-      dispatch(updatePost(currentId, postData));
+      dispatch(
+        updatePost(currentId, { ...postData, name: user?.result?.name })
+      );
     } else {
-      dispatch(createPost(postData));
+      dispatch(createPost({ ...postData, name: user?.result?.name }));
     }
 
     clear();
@@ -42,7 +46,17 @@ const Form = ({ currentId, setCurrentId }) => {
 
   useEffect(() => {
     if (post) setPostData(post);
-  }, [post]);
+  }, [post, location]);
+
+  if (!user?.result?.name) {
+    return (
+      <Paper className={classes.paper}>
+        <Typography variant="h6" align="center">
+          Please sign in to create your post and like other's post
+        </Typography>
+      </Paper>
+    );
+  }
 
   return (
     <Paper className={classes.paper}>
@@ -55,16 +69,6 @@ const Form = ({ currentId, setCurrentId }) => {
         <Typography variant="h6">
           {currentId ? "Editing" : "Creating"} a memory
         </Typography>
-        <TextField
-          name="creator"
-          label="Creator"
-          variant="outlined"
-          value={postData.creator}
-          onChange={(e) =>
-            setPostData({ ...postData, creator: e.target.value })
-          }
-          fullWidth
-        />
         <TextField
           name="title"
           label="Title"
