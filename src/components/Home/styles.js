@@ -21,4 +21,15 @@ export default makeStyles((theme) => ({
       flexDirection: "column-reverse",
     },
   },
+  appBarSearch: {
+    borderRadius: "4px",
+    marginBottom: "1rem",
+    display: "flex",
+    padding: "16px",
+  },
+  pagination: {
+    borderRadius: "4px",
+    marginTop: "1rem",
+    padding: "16px",
+  },
 }));

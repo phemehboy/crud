@@ -3,7 +3,7 @@ import { Paper, TextField, Typography, Button } from "@material-ui/core";
 import FileBase from "react-file-base64";
 import { useDispatch, useSelector } from "react-redux";
 import { createPost, updatePost } from "../../actions";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import useStyles from "./styles";
 
@@ -15,13 +15,14 @@ const initialValues = {
 };
 
 const Form = ({ currentId, setCurrentId }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [postData, setPostData] = useState(initialValues);
   const classes = useStyles();
   const dispatch = useDispatch();
   const user = JSON.parse(localStorage.getItem("profile"));
   const post = useSelector((state) =>
-    currentId ? state.posts.find((p) => p._id === currentId) : null
+    currentId ? state.posts.posts.find((p) => p._id === currentId) : null
   );
 
   const handleSubmit = (e) => {
@@ -32,7 +33,7 @@ const Form = ({ currentId, setCurrentId }) => {
         updatePost(currentId, { ...postData, name: user?.result?.name })
       );
     } else {
-      dispatch(createPost({ ...postData, name: user?.result?.name }));
+      dispatch(createPost({ ...postData, name: user?.result?.name }, navigate));
     }
 
     clear();
@@ -59,7 +60,7 @@ const Form = ({ currentId, setCurrentId }) => {
   }
 
   return (
-    <Paper className={classes.paper}>
+    <Paper className={classes.paper} elevation={6}>
       <form
         className={`${classes.form} ${classes.root}`}
         noValidate

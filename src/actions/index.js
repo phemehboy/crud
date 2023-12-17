@@ -1,27 +1,67 @@
 import {
   FETCH_ALL,
+  FETCH_POST,
   CREATE,
   UPDATE,
   DELETE,
   LIKE,
+  FETCH_SEARCH_POSTS,
+  START_LOADING,
+  END_LOADING,
 } from "../constants/actionTypes";
 import * as api from "../api";
 
-export const getPosts = () => async (dispatch) => {
+export const getPost = (id) => async (dispatch) => {
   try {
-    const { data } = await api.fetchPosts();
+    dispatch({ type: START_LOADING });
+    const { data } = await api.fetchPost(id);
 
-    dispatch({ type: FETCH_ALL, payload: data });
+    console.log(data);
+
+    dispatch({ type: FETCH_POST, payload: data });
+    dispatch({ type: END_LOADING });
   } catch (error) {
     console.log(error);
   }
 };
 
-export const createPost = (post) => async (dispatch) => {
+export const getPosts = (page) => async (dispatch) => {
   try {
+    dispatch({ type: START_LOADING });
+    const { data } = await api.fetchPosts(page);
+
+    console.log(data);
+
+    dispatch({ type: FETCH_ALL, payload: data });
+    dispatch({ type: END_LOADING });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getPostsBySearch = (searchQuery) => async (dispatch) => {
+  try {
+    dispatch({ type: START_LOADING });
+    const {
+      data: { data },
+    } = await api.fetchPostsBySearch(searchQuery);
+
+    dispatch({ type: FETCH_SEARCH_POSTS, payload: data });
+    dispatch({ type: END_LOADING });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const createPost = (post, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: START_LOADING });
     const { data } = await api.createPost(post);
 
+    navigate(`/posts/${data._id}`);
+
     dispatch({ type: CREATE, payload: data });
+    dispatch({ type: END_LOADING });
   } catch (error) {
     console.log(error);
   }
